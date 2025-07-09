@@ -1,0 +1,16 @@
+__pycache__
+
+# Misc disk images + build artifacts
+*.dsk
+*.linc
+*.rk08
+*.rk05
+*.bin
+*.lst
+
+# Other stuff I have in my work dir
+pal
+*.kate-swp
+*.swp
+*.bak
+
