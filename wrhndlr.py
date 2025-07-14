@@ -59,12 +59,14 @@ def write_handlers(handler_block: memoryview, primary_path: bytes, secondary_pat
         handler = read_handler_image_oneshot(secondary_path)
         write_handler(handler_block, handler, 0o30)
 
+
+# TODO: Support BIN images
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='dial-media-builder', description='Build DIAL-MS media for various media types from a reference DIAL-MS LINCtape image')
-    parser.add_argument("-o", "--output-path", required=True)
-    parser.add_argument("-i", "--input-path", required=True)
-    parser.add_argument("-p", "--primary-handler", required=True)
-    parser.add_argument("-s", "--secondary-handler", required=True)
+    parser = argparse.ArgumentParser(prog='DIAL-MS Device Handler Writer', description="Setup/Assign/Replace DIAL-MS device handler slots from handler BIN files.")
+    parser.add_argument("-o", "--output-path", required=True, help="Output image path.")
+    parser.add_argument("-i", "--input-path", required=True, help="Input image path.")
+    parser.add_argument("-p", "--primary-handler", required=True, help="Primary handler BIN file path.")
+    parser.add_argument("-s", "--secondary-handler", required=True, help="Secondary handler BIN file path.")
     parsed = parser.parse_args(sys.argv[1:])
 
     # Open and copy input file.

@@ -55,7 +55,7 @@ def parse_spec_file_list_by_path(buff: memoryview, specfile_paths: list):
     for path in specfile_paths:
         stride = parse_spec_file_by_path(buff[offset:], path)
         if(stride == 0):
-            print("WARN: Specfile {} contains no unit table entries.".format(path))
+            print("WARN: Specfile '{}' contains no unit table entries.".format(path))
         offset += stride
 
         # Check if we're going out of bounds.
@@ -67,11 +67,10 @@ def parse_spec_file_list_by_path(buff: memoryview, specfile_paths: list):
     struct.pack_into("<H", buff, 0o77*BYTES_PER_WORD, 0o7775)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='dial-media-builder', description='Build DIAL-MS media for various media types from a reference DIAL-MS LINCtape image')
-    parser.add_argument("spec", nargs="*")
-    parser.add_argument("-o", "--output-path", required=True)
-    parser.add_argument("-i", "--input-path", required=True)
-    print(sys.argv[1:])
+    parser = argparse.ArgumentParser(prog='DIAL-MS Unit Table Writer', description='Setup the unit table in a DIAL-MS image using CSV config files.')
+    parser.add_argument("spec", nargs="*", help="Unit table CSV specification file path(s).")
+    parser.add_argument("-o", "--output-path", required=True, help="Output image path.")
+    parser.add_argument("-i", "--input-path", required=True, help="Input image path.")
     parsed = parser.parse_args(sys.argv[1:])
 
     # Create a copy of our input and open it for reading & writing.

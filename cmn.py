@@ -21,14 +21,14 @@ TAPE_SIZE_BYTES = TAPE_SIZE_BLOCKS * BYTES_PER_BLOCK
 
 HANDLER_LEN = 0o150 * BYTES_PER_WORD
 
-def media_type_valid(media_type: str) -> bool:
-    _VALID_MEDIA_TYPES = [
-        'linc',
-        'rk08',
-        'rk05',
-    ]
+VALID_MEDIA_TYPES = [
+    'linc',
+    'rk08',
+    'rk05',
+]
 
-    for mtype in _VALID_MEDIA_TYPES:
+def media_type_valid(media_type: str) -> bool:
+    for mtype in VALID_MEDIA_TYPES:
         if(media_type == mtype):
             return True
     return False

@@ -66,11 +66,11 @@ def copy_dial_media(out_path: str, in_image, media_type: str, copy_index: bool):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='dial-media-builder', description='Build DIAL-MS media for various media types from a reference DIAL-MS LINCtape image')
-    parser.add_argument("-o", "--output-path", required=True)
-    parser.add_argument("-i", "--input-path", required=True)
-    parser.add_argument("-m", "--media", required=True)
-    parser.add_argument("-i", "--preserve-index", action="store_const", const=True)
+    parser = argparse.ArgumentParser(prog='DIAL-MS Media Copier', description='Copy DIAL-MS data from one media type to another.')
+    parser.add_argument("-o", "--output-path", required=True, help="Output image path.")
+    parser.add_argument("-i", "--input-path", required=True, help="Input image path.")
+    parser.add_argument("-m", "--media", required=True, help="Media type.", choices=VALID_MEDIA_TYPES)
+    parser.add_argument("-i", "--preserve-index", action="store_const", const=True, help="Preserve the DIAL file index; if not set (default), the index and entire file area are zeroed in both output images.")
     parsed = parser.parse_args(sys.argv[1:])
 
     # Open the input.

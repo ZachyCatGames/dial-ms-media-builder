@@ -55,14 +55,14 @@ SYSTEM_SND_SPEC = {
 }
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='dial-media-builder', description='Build DIAL-MS media for various media types from a reference DIAL-MS LINCtape image')
-    parser.add_argument("-o", "--output-path", required=True)
-    parser.add_argument("-i", "--input-path", required=True)
-    parser.add_argument("-m", "--media", required=True)
-    parser.add_argument("-d", "--preserve-index", action="store_const", const=True)
-    parser.add_argument("--override-first")
-    parser.add_argument("-s", "--second-system", action="store_const", const=True)
-    parser.add_argument("-p", "--enable-patches", action="store_const", const=True)
+    parser = argparse.ArgumentParser(prog='dial-media-builder', description='Build DIAL-MS media for various media types from a reference DIAL-MS LINCtape image.')
+    parser.add_argument("-o", "--output-path", required=True, help="Output path excluding file extension, used for both the output LINCtape and output $MEDIA images.")
+    parser.add_argument("-i", "--input-path", required=True, help="Input LINCtape image path.")
+    parser.add_argument("-m", "--media", required=True, choices=VALID_MEDIA_TYPES, help="Media type.")
+    parser.add_argument("-d", "--preserve-index", action="store_const", const=True, help="Preserve the DIAL file index; if not set (default), the index and entire file area are zeroed in both output images.")
+    parser.add_argument("--replace-first", choices=VALID_MEDIA_TYPES, help="Replace the default LINCtape handler with a different handler.")
+    parser.add_argument("-s", "--second-system", action="store_const", const=True, help="Configure system units to use the secondary device handler.")
+    parser.add_argument("-p", "--enable-patches", action="store_const", const=True, help="Apply patches to allow rebooting DIAL-MS without the use of any LINCtape instructions.")
     parsed = parser.parse_args(sys.argv[1:])
 
     # Determine output paths.

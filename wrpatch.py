@@ -26,9 +26,9 @@ def apply_patches(control_block):
     control_block[start:start + _BUILD_IMG_BOOTER_LEN] = patched_booter
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='dial-media-builder', description='Build DIAL-MS media for various media types from a reference DIAL-MS LINCtape image')
-    parser.add_argument("-o", "--output-path", required=True)
-    parser.add_argument("-i", "--input-path", required=True)
+    parser = argparse.ArgumentParser(prog='DIAL-MS Rebootstrap Patch Writer', description='Apply a patch to the DIAL-MS BOOTER routine to make it use the system device handler (instead of the LINCtape instructions) when reading in the boot blocks')
+    parser.add_argument("-o", "--output-path", required=True, help="Output path.")
+    parser.add_argument("-i", "--input-path", required=True, help="Input path.")
     parsed = parser.parse_args(sys.argv[1:])
 
     # Open and copy input file.
