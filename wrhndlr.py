@@ -47,16 +47,17 @@ def write_handler(handler_block: memoryview, new_hndlr: bytes, addr: int):
     handler_block[start:start + len(new_hndlr)] = new_hndlr
 
 def write_handlers(handler_block: memoryview, primary_path: bytes, secondary_path: bytes):
+    assert(len(handler_block) >= BYTES_PER_WORD)
+
     # Update primary handler if requested.
     if(primary_path != None):
         handler = read_handler_image_oneshot(primary_path)
-        print(handler)
-        write_handler(handler_block, handler, 0o30)
+        write_handler(handler_block, handler, 0o230)
 
     # Always override secondary handler if provided.
     if(secondary_path != None):
         handler = read_handler_image_oneshot(secondary_path)
-        write_handler(handler_block, handler, 0o230)
+        write_handler(handler_block, handler, 0o30)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='dial-media-builder', description='Build DIAL-MS media for various media types from a reference DIAL-MS LINCtape image')
@@ -64,22 +65,29 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--input-path", required=True)
     parser.add_argument("-p", "--primary-handler", required=True)
     parser.add_argument("-s", "--secondary-handler", required=True)
-    print(sys.argv[1:])
     parsed = parser.parse_args(sys.argv[1:])
 
     # Open and copy input file.
     image_file = copy_open_file(parsed.output_path, parsed.input_path, "rb+")
 
     # Read both handler blocks.
-    handler_blocks = memoryview(read_tape_block(image_file, IO_ROUTINES_BLOCK+1))
-    #print(handler_blocks.tobytes())
+    try:
+        handler_blocks = memoryview(read_tape_block(image_file, IO_ROUTINES_BLOCK+1))
+    except OSError as excpt:
+        sys.exit("Failed to read handler block from {}: {}".format(parsed.output_path, excpt))
+    if(len(handler_blocks) != BYTES_PER_BLOCK):
+        sys.exit("Only read partial handler block from {}".format(parsed.output_path))
 
     # Insert the new handler(s).
     write_handlers(handler_blocks, parsed.primary_handler, parsed.secondary_handler)
-    #print(handler_blocks.tobytes())
 
     # Write them back.
-    write_tape_block(image_file, handler_blocks, IO_ROUTINES_BLOCK+1)
+    try:
+        written = write_tape_block(image_file, handler_blocks, IO_ROUTINES_BLOCK+1)
+    except OSError as excpt:
+        sys.exit("Failed to write handler block back to {}: {}".format(parsed.output_path, excpt))
+    if(written != BYTES_PER_BLOCK):
+        sys.exit("Only wrote partial handler block back to {}".format(parsed.output_path))
 
     sys.exit(0)
 

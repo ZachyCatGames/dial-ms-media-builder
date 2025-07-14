@@ -7,21 +7,19 @@ _PATCHED_IMAGE_PATH = "build-patched.img"
 _BUILD_IMG_BOOTER_LOC = 0o7200 * BYTES_PER_WORD
 _BUILD_IMG_BOOTER_LEN = 0o100 * BYTES_PER_WORD
 
+# Copy patched BOOTER routine from bundled build image to provided control block.
 def apply_patches(control_block):
+    assert(len(control_block) >= BYTES_PER_BLOCK)
+
     # Attempt to open the patched build image.
-    try:
-        pat_build_file = open(_PATCHED_IMAGE_PATH, "rb")
-    except Exception as excpt:
-        print("Failed to open file {}: {}".format(_PATCHED_IMAGE_PATH, excpt))
-        return -1
+    pat_build_file = open_file(_PATCHED_IMAGE_PATH, "rb")
 
     # Read patched BOOTER block.
     try:
         pat_build_file.seek(_BUILD_IMG_BOOTER_LOC)
         patched_booter = pat_build_file.read(_BUILD_IMG_BOOTER_LEN)
     except Exception as excpt:
-        print("Failed to read patched BOOTER routine: {}".format(excpt))
-        return -1
+        sys.exit("Failed to read patched BOOTER routine from {}: {}".format(_PATCHED_IMAGE_PATH, excpt))
 
     # Pull second half of the block from the previously read I/O controller block.
     start = 0o200 * BYTES_PER_WORD
@@ -37,13 +35,22 @@ if __name__ == "__main__":
     image_file = copy_open_file(parsed.output_path, parsed.input_path, "rb+")
 
     # Read both handler blocks.
-    handler_blocks = memoryview(read_tape_block(image_file, IO_ROUTINES_BLOCK))
+    try:
+        handler_blocks = memoryview(read_tape_block(image_file, IO_ROUTINES_BLOCK))
+    except OSError as excpt:
+        sys.exit("Failed to read I/O routine block from '{}': {}".format(parsed.output_path, excpt))
+    if(len(handler_blocks) != BYTES_PER_BLOCK):
+        sys.exit("Only read partial I/O routine block from '{}': {}".format(parsed.output_path, excpt))
 
     # Insert the new handler(s).
     apply_patches(handler_blocks)
-    print(type(handler_blocks))
 
     # Write them back.
-    write_tape_block(image_file, handler_blocks, IO_ROUTINES_BLOCK, 2)
+    try:
+        written = write_tape_block(image_file, handler_blocks, IO_ROUTINES_BLOCK)
+    except OSError as excpt:
+        sys.exit("Failed to read I/O routine block from '{}': {}".format(parsed.output_path, excpt))
+    if(written != BYTES_PER_BLOCK):
+        sys.exit("Only read partial I/O routine block from '{}': {}".format(parsed.output_path, excpt))
 
     sys.exit(0)

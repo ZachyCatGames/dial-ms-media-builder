@@ -18,19 +18,20 @@ MEDIA_ATTRIBUTES = {
 def _erase_data_range(image: memoryview, start: int, end: int):
     zero_block = bytearray(BYTES_PER_BLOCK)
     for i in range(start * BYTES_PER_BLOCK, end * BYTES_PER_BLOCK, BYTES_PER_BLOCK):
-        print(i)
-        print(len(zero_block))
-        print(len(image[i:i+BYTES_PER_BLOCK]))
         image[i:i+BYTES_PER_BLOCK] = zero_block
 
 def copy_dial_media(out_path: str, in_image, media_type: str, copy_index: bool):
+    assert(out_path != None and out_path != "")
+    assert(in_image != None)
+    assert(media_type_valid(media_type))
+
     # We can simply copy the input over then expand the output.
-    try:
-        data = memoryview(read_tape_block(in_image, 0, BLOCK_COUNT))
-        assert(len(data) == BLOCK_COUNT * BYTES_PER_BLOCK)
-    except Exception as excpt:
-        print("Failed to read input image: {}".format(excpt))
-        sys.exit(-1)
+    data = memoryview(read_tape_block(in_image, 0, TAPE_SIZE_BLOCKS))
+
+    # Must have blocks up to start of beginning of work area.
+    block_count = int(len(data) / BYTES_PER_BLOCK)
+    if(block_count < 0o370):
+        raise ValueError("Input image missing parts of system area")
 
     # Calculate total media size.
     attribs = MEDIA_ATTRIBUTES[media_type]
@@ -42,20 +43,26 @@ def copy_dial_media(out_path: str, in_image, media_type: str, copy_index: bool):
         _erase_data_range(data, 0, 0o300)
 
         # Again.
-        _erase_data_range(data, 0o370, BLOCK_COUNT)
+        _erase_data_range(data, 0o370, block_count)
 
         # AGAIN!
         _erase_data_range(data, 0o346, 0o350) #not including 350
 
     # Open output file and send it.
-    try:
-        with open(out_path, "wb") as fp:
-            fp.write(data)
-            fp.seek(media_size - 1)
-            fp.write(bytes(1))
-    except Exception as excpt:
-        print("Failed to write media to {}: {}".format(out_path, excpt))
-        sys.exit(-1)
+    with open_file(out_path, "wb") as fp:
+            # Write source image data data.
+            try:
+                fp.write(data)
+            except OSError as excpt:
+                sys.exit("Failed to media data to {}: {}".format(excpt))
+
+            # Expand the new image to its correct size if needed.
+            if(fp.tell() < TAPE_SIZE_BYTES):
+                try:
+                    fp.seek(media_size - 1)
+                    fp.write(bytes(1))
+                except OSError as excpt:
+                    sys.exit("Failed to expand image '{}': {}".format(out_path, excpt))
 
 
 if __name__ == "__main__":
@@ -69,6 +76,14 @@ if __name__ == "__main__":
     # Open the input.
     input_image = open_file(parsed.input_path, "rb")
 
-    # And copy it :)
-    copy_dial_media(parsed.output_path, input_image, parsed.media, parsed.preserve_index != None)
+    # Check media type.
+    if(not media_type_valid(parsed.media)):
+        sys.exit("Invalid media type: {}".format(parsed.media))
 
+    # And copy it :)
+    try:
+        copy_dial_media(parsed.output_path, input_image, parsed.media, parsed.preserve_index != None)
+    except OSError as excpt:
+        sys.exit("Failed to copy input {} to output {}: {}".format(parsed.input_path, parsed.output_path, ))
+    except ValueError as excpt:
+        sys.exit("Input image {} improperly formatted: {}".format(parsed.input_path, excpt))
