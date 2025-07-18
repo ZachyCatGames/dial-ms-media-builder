@@ -25,6 +25,7 @@ VALID_MEDIA_TYPES = [
     'linc',
     'rk08',
     'rk05',
+    'sdsk',
 ]
 
 def media_type_valid(media_type: str) -> bool:

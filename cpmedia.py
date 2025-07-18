@@ -12,7 +12,8 @@ class MediaAttributes:
 MEDIA_ATTRIBUTES = {
     'linc': MediaAttributes(512, 256, 1), #Usually
     'rk08': MediaAttributes(3248, 256, 1),
-    'rk05': MediaAttributes(3248, 256, 2)
+    'rk05': MediaAttributes(3248, 256, 2),
+    'sdsk': MediaAttributes(3248, 256, 2),  # Uses rk05 DSK format
 }
 
 def _erase_data_range(image: memoryview, start: int, end: int):
