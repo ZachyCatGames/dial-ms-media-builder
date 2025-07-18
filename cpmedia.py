@@ -58,7 +58,7 @@ def copy_dial_media(out_path: str, in_image, media_type: str, copy_index: bool):
                 sys.exit("Failed to media data to {}: {}".format(excpt))
 
             # Expand the new image to its correct size if needed.
-            if(fp.tell() < TAPE_SIZE_BYTES):
+            if(fp.tell() < media_size):
                 try:
                     fp.seek(media_size - 1)
                     fp.write(bytes(1))
