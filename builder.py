@@ -6,17 +6,17 @@ import wrtbl as wt
 from cmn import *
 
 HANDLER_PATHS = {
-    'linc': "handlers/linctape-handler.img",
-    'rk08': "handlers/rk08-handler.img",
-    'rk05': "handlers/rk08-handler.img",
-    'sdsk': "handlers/sdsk-handler.img"
+    'linc': "handlers/linctape-handler.bin",
+    'rk08': "handlers/rk08-handler.bin",
+    'rk05': "handlers/rk08-handler.bin",
+    'sdsk': "handlers/sdsk-handler.bin"
 }
 
 PATCHED_HANDLER_PATHS = {
-    'linc': "handlers/linctape-handler-patched.img",
-    'rk08': "handlers/rk08-handler-patched.img",
-    'rk05': "handlers/rk08-handler-patched.img",
-    'sdsk': "handlers/sdsk-handler.img" # Serial disk handler has the reboot-strap patch applied.
+    'linc': "handlers/linctape-handler-patched.bin",
+    'rk08': "handlers/rk08-handler-patched.bin",
+    'rk05': "handlers/rk08-handler-patched.bin",
+    'sdsk': "handlers/sdsk-handler.bin" # Serial disk handler has the reboot-strap patch applied.
 }
 
 TAPE_HANDLER_ADDRS = {
@@ -96,8 +96,8 @@ if __name__ == "__main__":
 
     # Determine what type we have in the primary slot.
     primary_type = "linc" # default to LINCtape
-    if(parsed.override_first != None):
-        primary_type = parsed.override_first
+    if(parsed.replace_first != None):
+        primary_type = parsed.replace_first
 
     # Check that primary type is valid.
     assert(primary_type != None)    # Cannot be none

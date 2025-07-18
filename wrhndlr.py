@@ -4,6 +4,7 @@ import sys
 from dataclasses import dataclass
 
 from cmn import *
+import bin2hndlr as bn
 
 # Notes:
 # Each word is two bytes in a DSK
@@ -41,23 +42,25 @@ from cmn import *
 #       - Valuable for non-LINCtape devices, where the whole rimloader etc sequence would otherwise need to be run after every program load.
 #   - NOTE: This program does not automatically update the unit table, for this wrtbl is provided.
 
-def write_handler(handler_block: memoryview, new_hndlr: bytes, addr: int):
-    start = addr*BYTES_PER_WORD
-    print(type(new_hndlr))
-    handler_block[start:start + len(new_hndlr)] = new_hndlr
+def write_handler(handler_block: memoryview, new_hndlr_path: str, addr: int):
+    # Open handler binary and parse BIN data to a core image.
+    with open_file(new_hndlr_path, "rb") as fp:
+        hndlr_data = bn.bin_to_core_image(fp)[0o230 * BYTES_PER_WORD:0o370 * BYTES_PER_WORD]
 
-def write_handlers(handler_block: memoryview, primary_path: bytes, secondary_path: bytes):
+    # Insert the new handler.
+    start = addr*BYTES_PER_WORD
+    handler_block[start:start + len(hndlr_data)] = hndlr_data
+
+def write_handlers(handler_block: memoryview, primary_path: str, secondary_path: str):
     assert(len(handler_block) >= BYTES_PER_WORD)
 
     # Update primary handler if requested.
     if(primary_path != None):
-        handler = read_handler_image_oneshot(primary_path)
-        write_handler(handler_block, handler, 0o230)
+        write_handler(handler_block, primary_path, 0o230)
 
     # Always override secondary handler if provided.
     if(secondary_path != None):
-        handler = read_handler_image_oneshot(secondary_path)
-        write_handler(handler_block, handler, 0o30)
+        write_handler(handler_block, secondary_path, 0o30)
 
 
 # TODO: Support BIN images
