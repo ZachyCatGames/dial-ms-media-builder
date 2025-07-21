@@ -85,9 +85,11 @@ if __name__ == "__main__":
             sys.exit("Input image '{}' is improperly formatted: {}".format(parsed.input_path, excpt))
     lt_image = open_file(out_lt_path, "rb+")
 
-    # Read in the control block, starting with a fresh master copy.
+    # Read in both I/O routine blocks, starting with fresh master copies.
     try:
-        control_block = memoryview(read_tape_block(lt_image, IO_CONTROLLER_BLOCK))
+        control_block = read_tape_block(lt_image, IO_CONTROLLER_BLOCK)
+        handler_block = read_tape_block(lt_image, IO_MASTERS_BLOCK)
+        routine_blocks = memoryview(control_block + handler_block)
     except OSError as excpt:
         sys.exit("Failed to read control block from ''{}': {}".format(out_lt_path, excpt))
     if(len(control_block) != BYTES_PER_BLOCK):
@@ -95,7 +97,7 @@ if __name__ == "__main__":
 
     # Are patches enabled? Apply them if yes.
     if(patch_enb):
-        wp.apply_patches(control_block)
+        wp.apply_patches(routine_blocks)
 
     # Determine what type we have in the primary slot.
     primary_type = "linc" # default to LINCtape
@@ -122,23 +124,7 @@ if __name__ == "__main__":
 
     # Build + write new table.
     specfile_list = [primary_spec, sys_spec, secondary_spec]
-    wt.parse_spec_file_list_by_path(control_block[wt.UNIT_TABLE_OFFSET:wt.UNIT_TABLE_END], specfile_list)
-
-    # We're now done with the controller block, write it to its new home.
-    try:
-        written = write_tape_block(lt_image, control_block, IO_ROUTINES_BLOCK)
-    except OSError as excpt:
-        sys.exit("Failed to write control block to '{}': {}".format(out_lt_path, excpt))
-    if(written != BYTES_PER_BLOCK):
-        sys.exit("Failed to write entire control block to '{}' (wrote {}).".format(out_lt_path, written))
-
-    # Read a fresh copy of the handlers block.
-    try:
-        handler_block = memoryview(read_tape_block(lt_image, IO_MASTERS_BLOCK))
-    except OSError as excpt:
-        sys.exit("Failed to read handler block from {}: {}".format(out_lt_path, excpt))
-    if(len(handler_block) != BYTES_PER_BLOCK):
-        sys.exit("Only read partial handler block from input!")
+    wt.parse_spec_file_list_by_path(routine_blocks[wt.UNIT_TABLE_OFFSET:wt.UNIT_TABLE_END], specfile_list)
 
     # Determine where the new handlers are. Patched handlers are for use with the --enable-patches option.
     if(patch_enb):
@@ -148,15 +134,15 @@ if __name__ == "__main__":
         primary_handler_path = HANDLER_PATHS[primary_type]
         secondary_handler_path = HANDLER_PATHS[secondary_type]
 
-    # Insert the new handlers.
-    wh.write_handlers(handler_block, primary_handler_path, secondary_handler_path)
+    # Insert the new handlers into second block.
+    wh.write_handlers(routine_blocks[BYTES_PER_BLOCK:BYTES_PER_BLOCK*2], primary_handler_path, secondary_handler_path)
 
-    # Write the handler block back.
+    # Write the routine blocks back.
     try:
-        written = write_tape_block(lt_image, handler_block, IO_ROUTINES_BLOCK+1)
+        written = write_tape_block(lt_image, routine_blocks, IO_ROUTINES_BLOCK)
     except OSError as excpt:
         sys.exit("Failed to write handler block to {}: {}".format(out_lt_path, excpt))
-    if(written != BYTES_PER_BLOCK):
+    if(written != BYTES_PER_BLOCK * 2):
         sys.exit("Failed to write entire handler block to {}.".format(out_lt_path))
 
     # ...and finally, create a copy of our targetted media type.

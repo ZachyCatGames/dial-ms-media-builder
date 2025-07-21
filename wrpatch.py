@@ -1,29 +1,29 @@
 import argparse
 import sys
 from cmn import *
+import bin2hndlr as bn
 
-_PATCHED_IMAGE_PATH = "build-patched.img"
-
-_BUILD_IMG_BOOTER_LOC = 0o7200 * BYTES_PER_WORD
-_BUILD_IMG_BOOTER_LEN = 0o100 * BYTES_PER_WORD
+_PATCHED_IMAGE_PATH = "build-patched.bin"
 
 # Copy patched BOOTER routine from bundled build image to provided control block.
-def apply_patches(control_block):
-    assert(len(control_block) >= BYTES_PER_BLOCK)
+def apply_patches(handler_blocks):
+    assert(len(handler_blocks) >= BYTES_PER_BLOCK * 2)
 
     # Attempt to open the patched build image.
-    pat_build_file = open_file(_PATCHED_IMAGE_PATH, "rb")
+    patched_build = bn.bin_to_core_image(open_file(_PATCHED_IMAGE_PATH, "rb"))
 
-    # Read patched BOOTER block.
-    try:
-        pat_build_file.seek(_BUILD_IMG_BOOTER_LOC)
-        patched_booter = pat_build_file.read(_BUILD_IMG_BOOTER_LEN)
-    except Exception as excpt:
-        sys.exit("Failed to read patched BOOTER routine from {}: {}".format(_PATCHED_IMAGE_PATH, excpt))
+    # Patch things before unit table.
+    handler_blocks[0:0o300*BYTES_PER_WORD] = patched_build[0o7000*BYTES_PER_WORD:0o7300*BYTES_PER_WORD]
 
-    # Pull second half of the block from the previously read I/O controller block.
-    start = 0o200 * BYTES_PER_WORD
-    control_block[start:start + _BUILD_IMG_BOOTER_LEN] = patched_booter
+    # After but before the handlers...
+    handler_blocks[0o400*BYTES_PER_WORD:0o430*BYTES_PER_WORD] = patched_build[0o7400*BYTES_PER_WORD:0o7430*BYTES_PER_WORD]
+
+    # Mini loader between the handlers...
+    handler_blocks[0o600*BYTES_PER_WORD:0o630*BYTES_PER_WORD] = patched_build[0o7600*BYTES_PER_WORD:0o7630*BYTES_PER_WORD]
+
+    # And lastly, the syscom areas.
+    handler_blocks[0o570*BYTES_PER_WORD:0o600*BYTES_PER_WORD] = patched_build[0o7570*BYTES_PER_WORD:0o7600*BYTES_PER_WORD]
+    handler_blocks[0o770*BYTES_PER_WORD:0o1000*BYTES_PER_WORD] = patched_build[0o7770*BYTES_PER_WORD:0o10000*BYTES_PER_WORD]
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='DIAL-MS Rebootstrap Patch Writer', description='Apply a patch to the DIAL-MS BOOTER routine to make it use the system device handler (instead of the LINCtape instructions) when reading in the boot blocks')
@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     # Read both handler blocks.
     try:
-        handler_blocks = memoryview(read_tape_block(image_file, IO_ROUTINES_BLOCK))
+        handler_blocks = memoryview(read_tape_block(image_file, IO_ROUTINES_BLOCK, 2))
     except OSError as excpt:
         sys.exit("Failed to read I/O routine block from '{}': {}".format(parsed.output_path, excpt))
     if(len(handler_blocks) != BYTES_PER_BLOCK):
