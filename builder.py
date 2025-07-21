@@ -40,7 +40,7 @@ UNIT_TALBE_SPECS_SEC = {
     'linc': "specs/linctape-spec.sec-std.csv",
     'rk08': "specs/rk08-spec.sec-std.csv",
     'rk05': "specs/rk08-spec.sec-std.csv",
-    'sdsk': "specs/sdsk-spec.sec-std.csv",
+    'sdsk': "specs/rk08-spec.sec-std.csv",
 }
 
 # System unit specifications.
@@ -48,13 +48,13 @@ SYSTEM_PRI_SPEC = {
     'linc': "specs/sys-spec.pri-std.csv",
     'rk08': "specs/sys-spec.pri-std.csv",
     'rk05': "specs/sys-spec.pri-std.csv",
-    'sdsk': "specs/sdsk-sys-spec.pri-std.csv",
+    'sdsk': "specs/sys-spec.pri-std.csv",
 }
 SYSTEM_SND_SPEC = {
     'linc': "specs/sys-spec.sec-std.csv",
     'rk08': "specs/sys-spec.sec-std.csv",
     'rk05': "specs/sys-spec.sec-std.csv",
-    'sdsk': "specs/sdsk-sys-spec.sec-std.csv",
+    'sdsk': "specs/sys-spec.sec-std.csv",
 }
 
 if __name__ == "__main__":
