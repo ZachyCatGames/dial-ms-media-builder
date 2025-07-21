@@ -9,7 +9,7 @@ def bin_to_core_image(bin_file):
 
     bin_file.seek(-1, 1)
 
-    data = bytearray(0o10000)
+    data = bytearray(0o10000 * 2)
     skip = False
     address = 0
     while(True):
