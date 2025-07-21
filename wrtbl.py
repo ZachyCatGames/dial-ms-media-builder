@@ -64,7 +64,7 @@ def parse_spec_file_list_by_path(buff: memoryview, specfile_paths: list):
 
     # Add a terminator + patched loader constant.
     struct.pack_into("<H", buff, offset, 0o7777)
-    struct.pack_into("<H", buff, 0o77*BYTES_PER_WORD, 0o7775)
+    struct.pack_into("<H", buff, 0o77*BYTES_PER_WORD, 0o7774)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='DIAL-MS Unit Table Writer', description='Setup the unit table in a DIAL-MS image using CSV config files.')
