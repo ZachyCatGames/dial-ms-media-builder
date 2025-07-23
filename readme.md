@@ -10,6 +10,7 @@ The other tools, `cpmedia`, `wrhndlr`, `wrpatch`, and `wrtbl` provide the same f
 Builder can be used to generate DIAL-MS system images for various types of PDP-8/12 media from a base LINCtape image, two new images will be generated in the process.
 One image will be a new LINCtape image with all modifications applied (new handlers, etc);
 the second image will have identical contents to the new LINCtape image, but will be formatted according to the specified media type (the second image will not be generated if selected media type is LINCtape).
+In some cases one of these images may be discarded if it's not needed, see [Using the Disk Images](#Using the Disk Images)
 
 Builder will automatically setup both images so they're usable without any further modification:
 correct handlers will be installed, unit table correctly setup, etc.
@@ -94,6 +95,27 @@ For consistency, I'm continuing this convention and will also be referring to th
 
 The "system" handler is whatever handler is responsible for taking requests to the DIAL-MS system and work areas.
 This may be eithe the primary or secondary handler.
+
+### Using the Disk Images
+As may come as no shock, the produced images are intended to be written to their respective media (or given to os8diskserver-dial, for Serial Disk).
+But there are cases where one of the images may or may not be strictly needed.
+Although I recommend using both where possible.
+
+#### Rebootstrap
+If the rebootstrap patch is being used, all devices must have consistent I/O routine blocks.
+The I/O routines contain the device handlers, unit information, and information on what device is the system device (which is actually just more unit info but anyway).
+When the rebootstrap is used, the I/O routines will be read from whatever device the previous loaded program was loaded from and used to restart DIAL-MS.
+If that device is configured differently from your system device, the rebootstrap could result in DIAL-MS being loaded from some other device. 
+
+#### LINCtape as System
+If LINCtape is being used as system device and the rebootstrap patch isn't being used, the other RK08/RK05/whatever image may be discarded and whatever other media of the chosen type may be used.
+In this case, the secondary device isn't being used for any system operations and doesn't need to match the LINCtape's system configuration.
+
+#### No LINCtape :(
+If no LINCtape units are being used, the LINCtape image may be discarded.
+
+This also goes for other media types...
+but why install $HANDLER if you aren't going to use $HANDLER.
 
 ### Unit Numbers
 DIAL-MS implements a set of I/O routines that abstract away direct device accesses for the user.
