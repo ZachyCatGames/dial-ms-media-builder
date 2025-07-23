@@ -7,15 +7,27 @@ The other tools, `cpmedia`, `wrhndlr`, `wrpatch`, and `wrtbl` provide the same f
 `builder` is essentially a fancy wrapper for the other tools.
 
 ## Builder
-Builder takes in a base LINCtape image and spits out two new images.
-One image will be a new LINCtape image with all relevant modifications applied (new handlers, patches, etc);
-the second image will have identical contents to the new LINCtape image, but be formatted using the specified media type (second image will not be generated if selected media type is LINCtape).
+Builder can be used to generate DIAL-MS system images for various types of PDP-8/12 media from a base LINCtape image, two new images will be generated in the process.
+One image will be a new LINCtape image with all modifications applied (new handlers, etc);
+the second image will have identical contents to the new LINCtape image, but will be formatted according to the specified media type (the second image will not be generated if selected media type is LINCtape).
 
-Features include:
-* Building RK08, RK05, serial disk, and LINCtape images from a base LINCtape image.
+Builder will automatically setup both images so they're usable without any further modification:
+correct handlers will be installed, unit table correctly setup, etc.
+
+The specified device type will have its handler setup as the secondary handler ([#Primary Handler? Secondary Handler? System Handler?]) and possibly as the system handler.
+By default, the primary handler will be left as the LINCtape handler, but can be replaced with a different one as well.
+It's also possible to choose to preserve the files from the base image, or to start with a clean slate (i.e., no files).
+
+There's also an option to install a rebootstrap patch.
+If the patch is enabled, it'll be possible to quickly restart DIAL-MS after executing a program from location 017757.
+
+More detailed information on usage is presented in [#Usage] and the sections following it.
+
+Feature tldr:
+* Building RK08, RK05, Serial Disk, and LINCtape images from a base LINCtape image.
     * The secondary device handler will automatically be replaced with the handler for the specified media type.
     * A LINCtape image will also always be automatically generated containing the appropriate handlers, this may be used as boot media or be discarded if it isn't needed.
-* A LINCtape-less rebootstrap patch that removes the DIAL-MS restart routine's LINCtape dependency by replacing hardcoded LINCtape instructions with a call to the DIAL-MS I/O routines.
+* A LINCtape-less rebootstrap patch allows restarting DIAL-MS from location 017757.
 * Ability to destroy or preserve the DIAL index and file areas.
 * Option to make the secondary device the system device. 
 * Option to replace the primary/LINCtape handler with some other handler.
@@ -46,6 +58,8 @@ options:
   -p, --enable-patches  Apply patches to allow rebooting DIAL-MS without the use of any LINCtape instructions.
 ```
 
+Some example uses are provided below.
+
 #### Building a basic Serial Disk image
 The following will build new serial disk and LINCtape images to `out.sdsk` and `out.linc`, respectively, from a base `in.linc` LINCtape image.
 Both will contain the serial disk handler and their file areas will be erased.
@@ -70,7 +84,16 @@ Serial Disk will be configured as the system device and it'll be possible to reb
 python builder.py --input-path in.linc --output-path out --media sdsk --second-system --enable-patches
 ```
 
+### Primary Handler? Secondary Handler? System Handler?
+DIAL-MS supports having two device handlers installed at a given time (well, you can have more, but good luck).
+One slot is located at 07630 and spans 0150 words, this will typically contain the LINCtape handler.
+The other slot is located at 07430 and also spans 0150 words, this slot typically contains the handler for whatever other device, if one exists, is being used (RK05, DF32, whatever).
 
+The two slots aren't treated any differently and can both handle accesses to any unit number, but typically the 07630 slot handles `0x` unit numbers while the 07430 slot handles `01x` unit numbers.
+For consistency, I'm continuing this convention and will also be referring to the 07630 slot as the "primary" handler and the 07430 slot as the "secondary" handler, since the "primary" handler always exists and is given earlier unit numbers.
+
+The "system" handler is whatever handler is responsible for taking requests to the DIAL-MS system and work areas.
+This may be eithe the primary or secondary handler.
 
 ### Unit Numbers
 DIAL-MS implements a set of I/O routines that abstract away direct device accesses for the user.
@@ -101,40 +124,43 @@ LINCtape:
 * `n7` - LINCtape unit 7
 
 ### Input and Output Options
-The `-i NAME` or `--input NAME` flag is used to specify the base LINCtape's path (`NAME`).
+The `-i NAME` or `--input NAME` flag is used to specify the base LINCtape image's path (`NAME`).
 The input image must be a valid LINCtape image containing a DIAL-MS system.
 
 The `-o NAME` or `--output NAME` flag is used to specify the out image paths (`NAME`).
-The given path should not include a file extenion, as builder will automatically add one.
-In most cases, two output images will be generated, one named `NAME.linc` and another named `NAME.MEDIA`, where `NAME` and `MEDIA` is the provided path and media type, respectively.
+The given path should not include a file extenion, builder will automatically add one.
+In most cases, two output images will be produced, one named `NAME.linc` and another named `NAME.MEDIA`, where `NAME` and `MEDIA` is the provided path and media type, respectively.
 The only exception is if provided media type is `linc`, in which case only `NAME.linc` will be produced.
 
 ### Output Format
 Output LINCtape images will use the `linc` format with 512 blocks containing 256 words each and no start nor end leader.
 
-RK08, RK05, and SDSK images will use the DSK format with the following:
+RK08, RK05, and SDSK images will use the DSK format:
 * `rk08` - 3248 blocks containing 256 words each
 * `rk05` - 6496 blocks containing 256 words each
 * `sdsk` - Same as `rk05`
 
 ### Media Types
-Builder can currently build images for RK08, RK05, Serial Disk, and LINCtape media.
+Builder can currently build images for RK08, RK05, Serial Disk, and LINCtape.
 The media type, `TYPE`,  may be specified using the `--media TYPE` option with the valid types being:
 * `rk08` - RK08
 * `rk05` - RK05
 * `sdsk` - Serial Disk (disk format identical to RK05)
 * `linc` - LINCtape
 
-For all media types except LINCtape, the secondary device handler will always be the correct handler for that media type;
+For all media types except LINCtape, the secondary device handler will always be the correct handler for the chosen media type;
 the LINCtap handler will be the primary handler.
 
-If `linc` is chosen and the primary handler is not overridden (see: [#Secondary Device-As-System]), the secondary device handler will be 0'd and the primary handler will be the LINCtape handler.
-If the primary handler is overridden, the LINCtape handler will be placed in the secondary slot and the primary slot will assigned to the handler specified by the override option.
+If `linc` is chosen and the primary handler is not overridden (see: [Replace the Primary Handler]), the secondary device handler will be 0'd and the primary handler will be the LINCtape handler.
+If the primary handler is overridden, the LINCtape handler will be the secondary handler and the primary handler will be that specified by the override option.
 
 ### Rebootstrap Patch
 Builder provides a patch that allows restarting DIAL-MS without any LINCtape dependency.
 The system can be restarted by starting at location 017757, assuming the final page of field 1 hadn't been overwritten.
 The patch may be applied using the `-p` or `--enable-patches` flag.
+
+NOTE: This will restart the system from whatever device was previously used to load a program.
+
 
 #### Longer Explaination
 The reboostrap patch option does two things.
@@ -149,15 +175,15 @@ In all currently implementations, the reboostrap will be located at 017757 after
 
 But there is a another issue.
 The afforementioned restart routine in the I/O routines will mostly use the device-agnostic I/O routines when reading blocks.
-However, the restart routine requires that it's located in field 1; if it's not, it will re-read the I/O routines into field 1 using LINCtape read instructions.
-This creates an LINCtape dependency for restarting the system from field 0.
+However, the restart routine requires that it's located in field 1; if it's not, it will re-read the I/O routines into field 1 using LINCtape read instructions and jump to the restart routine in field 1.
+This creates an LINCtape dependency when restarting the system from field 0.
 
 As far as I can tell, there's no technical need for the use of LINCtape instructions here, and they can be trivially replaced to an equivalent call to the READ I/O routine.
 So... that's what I did.
 
 ### Secondary Device-As-System
 The secondary device (chosen via media type) can be be used as the system device using the `-s` or `--second-system` flag.
-This will make the DIAL-MS system require that the secondary device is available and usable in order to be used at all.
+This will make DIAL-MS depend on the secondary device for doing anything.
 
 #### Longer Explaination
 DIAL-MS internally accesses its system and work areas using special unit number (100, 110, 111) through the standard I/O routines.
