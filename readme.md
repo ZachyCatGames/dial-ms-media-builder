@@ -1,5 +1,5 @@
-# DIAL-MS Media Builder
-LAP6-DIAL-MS (DIAL-MS) Media Builder consists of several tools that allow creating and customizing new DIAL-MS images in several formats (LINCtape, RK08, RK05, SerialDisk) from a base DIAL-MS LINCtape image.
+# DIAL-MS Image Builder
+LAP6-DIAL-MS (DIAL-MS) Image Builder consists of several tools that allow creating and customizing new DIAL-MS images in several formats (LINCtape, RK08, RK05, SerialDisk) from a base DIAL-MS LINCtape image.
 
 The main tool, `builder`, is an all-in-one tool capable of building images suitable for most usecases with a single command.
 
@@ -7,9 +7,10 @@ The other tools, `cpmedia`, `wrhndlr`, `wrpatch`, and `wrtbl` provide the same f
 `builder` is essentially a fancy wrapper for the other tools.
 
 ## Builder
-Builder can be used to generate DIAL-MS system images for various types of PDP-8/12 media from a base LINCtape image, two new images will be generated in the process.
+Builder is used to build new DIAL-MS images from a reference LINCtape image.
+Two new images will be generated in the process.
 One image will be a new LINCtape image with all modifications applied (new handlers, etc);
-the second image will have identical contents to the new LINCtape image, but will be formatted according to the specified media type (the second image will not be generated if selected media type is LINCtape).
+the second image will have identical contents to the new LINCtape image, but will be formatted according to the specified media type (a second image will not be generated if selected media type is LINCtape).
 In some cases one of these images may be discarded if it's not needed, see [Using the Disk Images](#Using the Disk Images)
 
 Builder will automatically setup both images so they're usable without any further modification:
@@ -40,7 +41,7 @@ Feature tldr:
 usage: builder [-h] -o OUTPUT_PATH -i INPUT_PATH -m {linc,rk08,rk05,sdsk} [-d]
                           [--replace-first {linc,rk08,rk05,sdsk}] [-s] [-p]
 
-Build DIAL-MS media for various media types from a reference DIAL-MS LINCtape image.
+Build DIAL-MS images for various media types from a reference DIAL-MS LINCtape image.
 
 options:
   -h, --help            show this help message and exit

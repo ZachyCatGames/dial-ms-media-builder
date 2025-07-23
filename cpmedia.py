@@ -70,7 +70,7 @@ def copy_dial_media(out_path: str, in_image, in_media_type: str, out_media_type:
         raise ValueError("Input image missing parts of system area")
 
     # Calculate total media size.
-    attribs = MEDIA_ATTRIBUTES[in_media_type]
+    attribs = MEDIA_ATTRIBUTES[out_media_type]
     media_size = attribs.block_count * attribs.block_size * attribs.sides * BYTES_PER_WORD
 
     # Are we preserving the index?
@@ -110,7 +110,7 @@ def copy_dial_media(out_path: str, in_image, in_media_type: str, out_media_type:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='DIAL-MS Media Copier', description='Copy DIAL-MS data from one media type to another.')
+    parser = argparse.ArgumentParser(prog='DIAL-MS Media Copier', description='Copy DIAL-MS data from one image type to another.')
     parser.add_argument("-o", "--output-path", required=True, help="Output image path.")
     parser.add_argument("-i", "--input-path", required=True, help="Input image path.")
     parser.add_argument("-m", "--input-media", required=True, help="Input media type.", choices=VALID_MEDIA_TYPES)

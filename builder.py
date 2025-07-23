@@ -56,7 +56,7 @@ SYSTEM_SND_SPEC = {
 }
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='dial-media-builder', description='Build DIAL-MS media for various media types from a reference DIAL-MS LINCtape image.')
+    parser = argparse.ArgumentParser(prog='dial-image-builder', description='Build new DIAL-MS images from a base DIAL-MS LINCtape image.')
     parser.add_argument("-o", "--output-path", required=True, help="Output path excluding file extension, used for both the output LINCtape and output $MEDIA images.")
     parser.add_argument("-i", "--input-path", required=True, help="Input LINCtape image path.")
     parser.add_argument("-m", "--media", required=True, choices=VALID_MEDIA_TYPES, help="Media type.")
@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
     # Determine what type we have in the secondary slot.
     secondary_type = media_type # media type by default
-    if(media_type == "linc"):
+    if(media_type == "linc" and primary_type == "linc"):
         secondary_type = None # No sense in having two LINCtapes...
 
     if(secondary_type != None and not media_type_valid(secondary_type)):
