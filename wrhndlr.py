@@ -4,7 +4,7 @@ import sys
 from dataclasses import dataclass
 
 from cmn import *
-import bin2hndlr as bn
+import bin2img as bn
 
 # Notes:
 # Each word is two bytes in a DSK

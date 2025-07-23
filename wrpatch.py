@@ -1,7 +1,7 @@
 import argparse
 import sys
 from cmn import *
-import bin2hndlr as bn
+import bin2img as bn
 
 _PATCHED_IMAGE_PATH = "build-patched.bin"
 
