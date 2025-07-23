@@ -16,45 +16,37 @@ PATCHED_HANDLER_PATHS = {
     'linc': "handlers/linctape-handler-patched.bin",
     'rk08': "handlers/rk08-handler-patched.bin",
     'rk05': "handlers/rk08-handler-patched.bin",
-    'sdsk': "handlers/sdsk-handler.bin" # Serial disk handler has the reboot-strap patch applied.
-}
-
-TAPE_HANDLER_ADDRS = {
-    'rf08': (IO_MASTERS_BLOCK,   0o30),
-    'linc': (IO_MASTERS_BLOCK,   0o230),
-    'rk08': (IO_MASTERS_BLOCK_2, 0o30),
-    'rk05': (IO_MASTERS_BLOCK_2, 0o30),
-    'df32': (IO_MASTERS_BLOCK_2, 0o230)
+    'sdsk': "handlers/sdsk-handler.bin" # Serial disk handler always has the reboot-strap patch applied.
 }
 
 # Secondary unit specifications.
 UNIT_TABLE_SPECS_PRI = {
-    'linc': "specs/linctape-spec.pri-std.csv",
-    'rk08': "specs/rk08-spec.pri-std.csv",
-    'rk05': "specs/rk08-spec.pri-std.csv",
-    'sdsk': "specs/rk08-spec.pri-std.csv"
+    'linc': "unit-specs/linctape-units.pri-std.csv",
+    'rk08': "unit-specs/rk08-units.pri-std.csv",
+    'rk05': "unit-specs/rk08-units.pri-std.csv",
+    'sdsk': "unit-specs/rk08-units.pri-std.csv"
 }
 
 # Secondary unit specifications.
 UNIT_TALBE_SPECS_SEC = {
-    'linc': "specs/linctape-spec.sec-std.csv",
-    'rk08': "specs/rk08-spec.sec-std.csv",
-    'rk05': "specs/rk08-spec.sec-std.csv",
-    'sdsk': "specs/rk08-spec.sec-std.csv",
+    'linc': "unit-specs/linctape-units.sec-std.csv",
+    'rk08': "unit-specs/rk08-units.sec-std.csv",
+    'rk05': "unit-specs/rk08-units.sec-std.csv",
+    'sdsk': "unit-specs/rk08-units.sec-std.csv",
 }
 
 # System unit specifications.
 SYSTEM_PRI_SPEC = {
-    'linc': "specs/sys-spec.pri-std.csv",
-    'rk08': "specs/sys-spec.pri-std.csv",
-    'rk05': "specs/sys-spec.pri-std.csv",
-    'sdsk': "specs/sys-spec.pri-std.csv",
+    'linc': "unit-specs/sys-units.pri-std.csv",
+    'rk08': "unit-specs/sys-units.pri-std.csv",
+    'rk05': "unit-specs/sys-units.pri-std.csv",
+    'sdsk': "unit-specs/sys-units.pri-std.csv",
 }
 SYSTEM_SND_SPEC = {
-    'linc': "specs/sys-spec.sec-std.csv",
-    'rk08': "specs/sys-spec.sec-std.csv",
-    'rk05': "specs/sys-spec.sec-std.csv",
-    'sdsk': "specs/sys-spec.sec-std.csv",
+    'linc': "unit-specs/sys-units.sec-std.csv",
+    'rk08': "unit-specs/sys-units.sec-std.csv",
+    'rk05': "unit-specs/sys-units.sec-std.csv",
+    'sdsk': "unit-specs/sys-units.sec-std.csv",
 }
 
 if __name__ == "__main__":
