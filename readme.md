@@ -14,14 +14,14 @@ the second image will have identical contents to the new LINCtape image, but wil
 Builder will automatically setup both images so they're usable without any further modification:
 correct handlers will be installed, unit table correctly setup, etc.
 
-The specified device type will have its handler setup as the secondary handler ([#Primary Handler? Secondary Handler? System Handler?]) and possibly as the system handler.
+The specified device type will have its handler setup as the secondary handler ([Primary Handler? Secondary Handler? System Handler?](#Primary-Handler?-Secondary-Handler?-System Handler?)) and possibly as the system handler.
 By default, the primary handler will be left as the LINCtape handler, but can be replaced with a different one as well.
 It's also possible to choose to preserve the files from the base image, or to start with a clean slate (i.e., no files).
 
 There's also an option to install a rebootstrap patch.
 If the patch is enabled, it'll be possible to quickly restart DIAL-MS after executing a program from location 017757.
 
-More detailed information on usage is presented in [#Usage] and the sections following it.
+More detailed information on usage is presented in [Usage](#Usage) and the sections following it.
 
 Feature tldr:
 * Building RK08, RK05, Serial Disk, and LINCtape images from a base LINCtape image.
@@ -181,7 +181,7 @@ This creates an LINCtape dependency when restarting the system from field 0.
 As far as I can tell, there's no technical need for the use of LINCtape instructions here, and they can be trivially replaced to an equivalent call to the READ I/O routine.
 So... that's what I did.
 
-### Secondary Device-As-System
+### Secondary Device as System
 The secondary device (chosen via media type) can be be used as the system device using the `-s` or `--second-system` flag.
 This will make DIAL-MS depend on the secondary device for doing anything.
 
@@ -208,7 +208,7 @@ These areas will be copied without modification if they're to be preserved.
 ### Replace the Primary Handler
 The `--replace-primary hndlr` option can be used to replace the primary device handler with the handler `hndlr`.
 
-[#Secondary Device-As-System] still functions as usual when this is used.
+[Secondary Device as System](#Secondary-Device-as-System) still functions as usual when this is used.
 
 #### Longer Explaination
 DIAL-MS supports having two installed device handlers.
