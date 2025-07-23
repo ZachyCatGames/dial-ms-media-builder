@@ -14,7 +14,7 @@ the second image will have identical contents to the new LINCtape image, but wil
 Builder will automatically setup both images so they're usable without any further modification:
 correct handlers will be installed, unit table correctly setup, etc.
 
-The specified device type will have its handler setup as the secondary handler ([Primary Handler? Secondary Handler? System Handler?](#Primary-Handler?-Secondary-Handler?-System Handler?)) and possibly as the system handler.
+The specified device type will have its handler setup as the secondary handler ([Primary Handler? Secondary Handler? System Handler?](#Primary-Handler-Secondary-Handler-System Handler)) and possibly as the system handler.
 By default, the primary handler will be left as the LINCtape handler, but can be replaced with a different one as well.
 It's also possible to choose to preserve the files from the base image, or to start with a clean slate (i.e., no files).
 
