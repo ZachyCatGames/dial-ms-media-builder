@@ -6,7 +6,7 @@ import bin2img as bn
 _PATCHED_IMAGE_PATH = "build-patched.bin"
 
 # Copy patched BOOTER routine from bundled build image to provided control block.
-def apply_patches(handler_blocks):
+def apply_patches(handler_blocks: memoryview):
     assert(len(handler_blocks) >= BYTES_PER_BLOCK * 2)
 
     # Attempt to open the patched build image.

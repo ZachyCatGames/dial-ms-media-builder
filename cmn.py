@@ -24,6 +24,7 @@ HANDLER_LEN = 0o150 * BYTES_PER_WORD
 VALID_MEDIA_TYPES = [
     'linc',
     'rk08',
+    'rk01', #alias for rk08
     'rk05',
     'sdsk',
 ]

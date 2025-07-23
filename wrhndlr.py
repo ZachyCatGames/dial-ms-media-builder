@@ -75,7 +75,7 @@ if __name__ == "__main__":
     # Open and copy input file.
     image_file = copy_open_file(parsed.output_path, parsed.input_path, "rb+")
 
-    # Read both handler blocks.
+    # Read handler block.
     try:
         handler_blocks = memoryview(read_tape_block(image_file, IO_ROUTINES_BLOCK+1))
     except OSError as excpt:

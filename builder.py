@@ -8,6 +8,7 @@ from cmn import *
 HANDLER_PATHS = {
     'linc': "handlers/linctape-handler.bin",
     'rk08': "handlers/rk08-handler.bin",
+    'rk01': "handlers/rk08-handler.bin",
     'rk05': "handlers/rk08-handler.bin",
     'sdsk': "handlers/sdsk-handler.bin"
 }
@@ -15,6 +16,7 @@ HANDLER_PATHS = {
 PATCHED_HANDLER_PATHS = {
     'linc': "handlers/linctape-handler-patched.bin",
     'rk08': "handlers/rk08-handler-patched.bin",
+    'rk01': "handlers/rk08-handler-patched.bin",
     'rk05': "handlers/rk08-handler-patched.bin",
     'sdsk': "handlers/sdsk-handler.bin" # Serial disk handler always has the reboot-strap patch applied.
 }
@@ -23,6 +25,7 @@ PATCHED_HANDLER_PATHS = {
 UNIT_TABLE_SPECS_PRI = {
     'linc': "unit-specs/linctape-units.pri-std.csv",
     'rk08': "unit-specs/rk08-units.pri-std.csv",
+    'rk08': "unit-specs/rk01-units.pri-std.csv",
     'rk05': "unit-specs/rk08-units.pri-std.csv",
     'sdsk': "unit-specs/rk08-units.pri-std.csv"
 }
@@ -31,6 +34,7 @@ UNIT_TABLE_SPECS_PRI = {
 UNIT_TALBE_SPECS_SEC = {
     'linc': "unit-specs/linctape-units.sec-std.csv",
     'rk08': "unit-specs/rk08-units.sec-std.csv",
+    'rk01': "unit-specs/rk08-units.sec-std.csv",
     'rk05': "unit-specs/rk08-units.sec-std.csv",
     'sdsk': "unit-specs/rk08-units.sec-std.csv",
 }
@@ -39,12 +43,14 @@ UNIT_TALBE_SPECS_SEC = {
 SYSTEM_PRI_SPEC = {
     'linc': "unit-specs/sys-units.pri-std.csv",
     'rk08': "unit-specs/sys-units.pri-std.csv",
+    'rk01': "unit-specs/sys-units.pri-std.csv",
     'rk05': "unit-specs/sys-units.pri-std.csv",
     'sdsk': "unit-specs/sys-units.pri-std.csv",
 }
 SYSTEM_SND_SPEC = {
     'linc': "unit-specs/sys-units.sec-std.csv",
     'rk08': "unit-specs/sys-units.sec-std.csv",
+    'rk01': "unit-specs/sys-units.sec-std.csv",
     'rk05': "unit-specs/sys-units.sec-std.csv",
     'sdsk': "unit-specs/sys-units.sec-std.csv",
 }
@@ -68,9 +74,10 @@ if __name__ == "__main__":
     media_type = parsed.media
 
     # Create a copy of our input for writing.
+    # NOTE: The copy tool strips any padding from the input LINCtape and we rely on that (we assume there's no padding).
     with open_file(parsed.input_path, "rb") as fp:
         try:
-            cpm.copy_dial_media(out_lt_path, fp, "linc", preserve_index)
+            cpm.copy_dial_media(out_lt_path, fp, "linc", "linc", preserve_index)
         except OSError as excpt:
             sys.exit("Failed to copy input image ''{}' to '{}': {}".format(parsed.input_path, out_lt_path, excpt))
         except ValueError as excpt:
@@ -139,7 +146,7 @@ if __name__ == "__main__":
 
     # ...and finally, create a copy of our targetted media type.
     try:
-        cpm.copy_dial_media(out_alt_path, lt_image, media_type, preserve_index)
+        cpm.copy_dial_media(out_alt_path, lt_image, "linc", media_type, preserve_index)
     except OSError as excpt:
         sys.exit("Failed to copy LINCtape image '{}' to {} image '{}': {}".format(parsed.out_lt_path, secondary_type, out_alt_path, excpt))
     except ValueError as excpt:
