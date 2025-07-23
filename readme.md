@@ -24,13 +24,13 @@ If the patch is enabled, it'll be possible to quickly restart DIAL-MS after exec
 More detailed information on usage is presented in [Usage](#Usage) and the sections following it.
 
 Feature tldr:
-* Building RK08, RK05, Serial Disk, and LINCtape images from a base LINCtape image.
+* Building RK08, RK05, Serial Disk, and LINCtape images from a base LINCtape image. ([Here](#Media-Types))
     * The secondary device handler will automatically be replaced with the handler for the specified media type.
     * A LINCtape image will also always be automatically generated containing the appropriate handlers, this may be used as boot media or be discarded if it isn't needed.
-* A LINCtape-less rebootstrap patch allows restarting DIAL-MS from location 017757.
-* Ability to destroy or preserve the DIAL index and file areas.
-* Option to make the secondary device the system device. 
-* Option to replace the primary/LINCtape handler with some other handler.
+* A LINCtape-less rebootstrap patch allows restarting DIAL-MS from location 017757. ([Here](#Rebootstrap-Patch))
+* Ability to destroy or preserve the DIAL index and file areas. ([Here](#Preserve/Destroy-DIAL-File-Index))
+* Option to make the secondary device the system device. ([Here](#Secondary-Device-as-System))
+* Option to replace the primary/LINCtape handler with some other handler. ([Here](#Replace-the-Primary-Handler))
     * **WARNING**: This will remove the ability to the LINCtape units in DIAL-MS. Only use this option if you have no plans to use the LINCtape units.
     * LINCtape may still be used for booting, and will be used for rebootstrapping in some cases if the rebootstrap patch is not also applied.
 
